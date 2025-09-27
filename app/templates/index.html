@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stroke Prediction</title>
+    <style>
+        /* Reset & basics */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f7; color: #333; }
+        .container { max-width: 700px; margin: 30px auto; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        h1 { text-align: center; margin-bottom: 20px; color: #007BFF; }
+
+        /* Form layout */
+        form { display: grid; grid-gap: 15px; }
+        @media (min-width: 600px) {
+            form { grid-template-columns: 1fr 1fr; grid-gap: 20px; }
+        }
+
+        label { display: flex; flex-direction: column; font-weight: 500; font-size: 0.95rem; }
+        input[type="number"], input[type="range"], select { padding: 6px; border-radius: 5px; border: 1px solid #ccc; margin-top: 5px; }
+        input[type="range"] { width: 100%; }
+
+        button { grid-column: 1 / -1; padding: 12px; background: #007BFF; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; }
+        button:hover { background: #0056b3; transition: 0.3s; }
+
+        .result { grid-column: 1 / -1; text-align: center; font-size: 1.2rem; margin-top: 20px; padding: 15px; background: #e6f0ff; border-radius: 8px; color: #007BFF; }
+
+        /* Slider value display */
+        .slider-value { font-weight: bold; margin-left: 5px; color: #555; }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stroke Prediction</h1>
+        <form id="pred-form">
+            <label>Gender:
+                <select name="gender">
+                    <option>Male</option>
+                    <option>Female</option>
+                    <option>Other</option>
+                </select>
+            </label>
+
+            <label>Age: <span class="slider-value" id="age-value">50</span>
+                <input type="range" name="age" min="0" max="120" value="50" id="age-slider">
+            </label>
+
+            <label>Hypertension (0/1):
+                <input type="number" name="hypertension" min="0" max="1" value="0">
+            </label>
+
+            <label>Heart Disease (0/1):
+                <input type="number" name="heart_disease" min="0" max="1" value="0">
+            </label>
+
+            <label>Ever Married:
+                <select name="ever_married">
+                    <option>Yes</option>
+                    <option>No</option>
+                </select>
+            </label>
+
+            <label>Work Type:
+                <select name="work_type">
+                    <option>Private</option>
+                    <option>Self-employed</option>
+                    <option>Govt_job</option>
+                    <option>children</option>
+                    <option>Never_worked</option>
+                </select>
+            </label>
+
+            <label>Residence Type:
+                <select name="Residence_type">
+                    <option>Urban</option>
+                    <option>Rural</option>
+                </select>
+            </label>
+
+            <label>Avg Glucose Level: <span class="slider-value" id="glucose-value">100</span>
+                <input type="range" name="avg_glucose_level" min="50" max="300" value="100" id="glucose-slider" step="0.1">
+            </label>
+
+            <label>BMI: <span class="slider-value" id="bmi-value">25</span>
+                <input type="range" name="bmi" min="10" max="50" value="25" id="bmi-slider" step="0.1">
+            </label>
+
+            <label>Smoking Status:
+                <select name="smoking_status">
+                    <option>formerly smoked</option>
+                    <option>never smoked</option>
+                    <option>smokes</option>
+                    <option>Unknown</option>
+                </select>
+            </label>
+
+            <button type="submit">Predict</button>
+        </form>
+
+        <div class="result" id="out"></div>
+    </div>
+
+    <script>
+        // Update slider display values
+        const ageSlider = document.getElementById('age-slider');
+        const ageValue = document.getElementById('age-value');
+        ageSlider.oninput = () => ageValue.textContent = ageSlider.value;
+
+        const glucoseSlider = document.getElementById('glucose-slider');
+        const glucoseValue = document.getElementById('glucose-value');
+        glucoseSlider.oninput = () => glucoseValue.textContent = glucoseSlider.value;
+
+        const bmiSlider = document.getElementById('bmi-slider');
+        const bmiValue = document.getElementById('bmi-value');
+        bmiSlider.oninput = () => bmiValue.textContent = bmiSlider.value;
+
+        // Submit form via JS to get JSON response
+        const form = document.getElementById('pred-form');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const obj = {};
+            formData.forEach((v,k) => obj[k]=v);
+
+            const res = await fetch('/predict', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(obj)
+            });
+            const data = await res.json();
+            if(data.error){
+                document.getElementById('out').innerText = "Error: " + data.error;
+            } else {
+                document.getElementById('out').innerText = 
+                    `Prediction: ${data.prediction}\nProbability of Stroke: ${data.probability}`;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+# Core
+flask
+gunicorn
+
+# Data & ML
+pandas
+numpy
+scikit-learn
+joblib
+
+# Experiment Tracking
+mlflow
+
+# Visualization (optional for notebooks)
+matplotlib
+seaborn
+
+# Jupyter (for exploration)
+notebook
