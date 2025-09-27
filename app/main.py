@@ -1,4 +1,5 @@
-from .routes import bp
+# main.py at project root
+from app.routes import bp
 from flask import Flask
 
 def create_app():
